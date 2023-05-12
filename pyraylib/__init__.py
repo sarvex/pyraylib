@@ -117,10 +117,10 @@ VectorN = Union[Seq , 'Vector2' , 'Vector3' , 'Vector4']
 
 class Singleton(type):
     _instances = {}
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
+    def __call__(self, *args, **kwargs):
+        if self not in self._instances:
+            self._instances[self] = super(Singleton, self).__call__(*args, **kwargs)
+        return self._instances[self]
 
 
 def python_wrapper(funcname: str, argtypes: List[Any]= None, restype: Any= None):
@@ -148,46 +148,41 @@ def _to_float(value: int):
 
 def _to_byte_str(value: str):
     if not isinstance(value, (str, bytes)):
-        value = str(value)
+        value = value
     return value.encode('utf-8', 'ignore')
 
 def _to_str(value: bytes):
     return value.decode('utf-8' , 'ignore') if isinstance(value , bytes) else value
 
-def _to_color(seq: Seq)-> 'Color':
+def _to_color(seq: Seq) -> 'Color':
     if isinstance(seq , Color):
         return seq
-    else:
-        r , g , b , a = (_to_float(v) for v in seq)
-        return Color(r , g , b , a)
+    r , g , b , a = (_to_float(v) for v in seq)
+    return Color(r , g , b , a)
 
-def _vec2(seq: FloatSequence)-> 'Vector2':
+def _vec2(seq: FloatSequence) -> 'Vector2':
     if isinstance(seq , Vector2):
         return seq
-    else:
-        x , y = (_to_float(v) for v in seq)
-        return Vector2(x , y)
+    x , y = (_to_float(v) for v in seq)
+    return Vector2(x , y)
 
-def _vec3(seq: FloatSequence)-> 'Vector3':
+def _vec3(seq: FloatSequence) -> 'Vector3':
     if isinstance(seq , Vector3):
         return seq
-    else:
-        x , y , z = (_to_float(v) for v in seq)
-        return Vector3(x , y ,z)
+    x , y , z = (_to_float(v) for v in seq)
+    return Vector3(x , y ,z)
 
-def _vec4(seq: FloatSequence)-> 'Vector4':
+def _vec4(seq: FloatSequence) -> 'Vector4':
     if isinstance(seq , Vector4):
         return seq
-    else:
-        x , y , z , w = (_to_float(v) for v in seq)
-        return Vector4(x, y , z , w)
+    x , y , z , w = (_to_float(v) for v in seq)
+    return Vector4(x, y , z , w)
 
-def _rect(seq: FloatSequence)-> 'Rectangle':
+def _rect(seq: FloatSequence) -> 'Rectangle':
     if isinstance(seq , Rectangle):
         return seq
-    else:
-        x, y, w, h = (_to_float(v) for v in seq)
-        return Rectangle(x , y , w , h)
+    x, y, w, h = (_to_float(v) for v in seq)
+    return Rectangle(x , y , w , h)
 
 def _flatten(
     filter_types: Sequence[Type] ,
@@ -738,22 +733,22 @@ class Vector2(Struct):
         """Rotate Vector by float in Degrees"""
         return _rl.Vector2Rotate(self, _to_float(degree))
 
-    def dot_product(self, other: 'Vector2')-> float:
+    def dot_product(self, other: 'Vector2') -> float:
         """Calculate two vectors dot product"""
         if not isinstance(other, Vector2):
-            raise TypeError("{} must be Vector2, not {}".format(other, other.__class__.__qualname__))
+            raise TypeError(f"{other} must be Vector2, not {other.__class__.__qualname__}")
         else:
             return self.x* other.x + self.y * other.y
 
-    def distance(self, other)-> float:
+    def distance(self, other) -> float:
         """Calculate distance between two vectors"""
         if not isinstance(other, Vector2):
-            raise TypeError("{} must be Vector2, not {}".format(other, other.__class__.__qualname__))
+            raise TypeError(f"{other} must be Vector2, not {other.__class__.__qualname__}")
         return _rl.Vector2Distance(self, other)
 
-    def angle(self, other: 'Vector2')-> float:
+    def angle(self, other: 'Vector2') -> float:
         if not isinstance(other, Vector2):
-            raise TypeError("{} must be Vector2, not {}".format(other, other.__class__.__qualname__))
+            raise TypeError(f"{other} must be Vector2, not {other.__class__.__qualname__}")
         return _rl.Vector2Angle(self, other)
 
     def __str__(self) -> str:
@@ -762,22 +757,26 @@ class Vector2(Struct):
     def __iter__(self)-> Iterator[float]:
         return (self.x , self.y).__iter__()
     
-    def __getitem__(self, key: Union[str, int, slice])-> Union[float, Sequence]:
-        assert isinstance(key, (str, int, slice)), "KeyTypeError: {} not supported as subscription key.".format(key.__class__.__name__)
+    def __getitem__(self, key: Union[str, int, slice]) -> Union[float, Sequence]:
+        assert isinstance(
+            key, (str, int, slice)
+        ), f"KeyTypeError: {key.__class__.__name__} not supported as subscription key."
         if isinstance(key, (int, slice)):
             return [self.x, self.y][key]
         else:
             return {'x': self.x, 'y': self.y}[key]
     
-    def __setitem__(self, key: Union[str, int], value: Number)-> None:
-        assert isinstance(key, (str, int)), "KeyTypeError: {} not supported as subscription key.".format(key.__class__.__name__)
+    def __setitem__(self, key: Union[str, int], value: Number) -> None:
+        assert isinstance(
+            key, (str, int)
+        ), f"KeyTypeError: {key.__class__.__name__} not supported as subscription key."
         if isinstance(key, int):
             a = [self.x, self.y]
             a[key] = _to_float(value)
             self.x, self.y = a
         else:
             a = {'x': self.x, 'y': self.y}
-            assert key in a, "KeyError: invalid key '{}'.".format(key)
+            assert key in a, f"KeyError: invalid key '{key}'."
             a[key] = value
             self.x, self.y = tuple(a.values())
 
@@ -887,7 +886,7 @@ class Vector2(Struct):
         return self.x == other[0] and self.y == other.y
     
     def __repr__(self) -> str:
-        return "{}({},{})".format(self.__class__.__qualname__, self.x, self.y)
+        return f"{self.__class__.__qualname__}({self.x},{self.y})"
 
     @classmethod
     def one(cls):
@@ -918,27 +917,31 @@ class Vector3(Struct):
         )
     
     def __str__(self) -> str:
-        return "({},{},{})".format(self.x, self.y, self.z)
+        return f"({self.x},{self.y},{self.z})"
 
     def __iter__(self)-> Iterator[float]:
         return (self.x , self.y , self.z).__iter__()
     
-    def __getitem__(self, key: Union[str, int, slice])-> Union[float, Sequence]:
-        assert isinstance(key, (str, int, slice)), "KeyTypeError: {} not supported as subscription key.".format(key.__class__.__name__)
+    def __getitem__(self, key: Union[str, int, slice]) -> Union[float, Sequence]:
+        assert isinstance(
+            key, (str, int, slice)
+        ), f"KeyTypeError: {key.__class__.__name__} not supported as subscription key."
         if isinstance(key, (int, slice)):
             return [self.x, self.y, self.z][key]
         else:
             return {'x': self.x, 'y': self.y,'z': self.z}[key]
     
-    def __setitem__(self, key: Union[str, int], value: Number)-> None:
-        assert isinstance(key, (str, int)), "KeyTypeError: {} not supported as subscription key.".format(key.__class__.__name__)
+    def __setitem__(self, key: Union[str, int], value: Number) -> None:
+        assert isinstance(
+            key, (str, int)
+        ), f"KeyTypeError: {key.__class__.__name__} not supported as subscription key."
         if isinstance(key, int):
             a = [self.x, self.y, self.z]
             a[key] = _to_float(value)
             self.x, self.y, self.z = a
         else:
             a = {'x': self.x, 'y': self.y, 'z': self.z}
-            assert key in a, "KeyError: invalid key '{}'.".format(key)
+            assert key in a, f"KeyError: invalid key '{key}'."
             a[key] = value
             self.x, self.y, self.z = tuple(a.values())
 
@@ -1084,7 +1087,7 @@ class Vector3(Struct):
         return self.x == other[0] and self.y == other.y and self.z == other[2]
     
     def __repr__(self) -> str:
-        return "{}({},{},{})".format(self.__class__.__qualname__, self.x, self.y, self.z)
+        return f"{self.__class__.__qualname__}({self.x},{self.y},{self.z})"
     
     @classmethod
     def one(cls)-> 'Vector3':
@@ -1094,16 +1097,16 @@ class Vector3(Struct):
     def zero(cls)-> 'Vector3':
         return cls(0., 0., 0.)
 
-    def cross_product(self, other: 'Vector3')-> 'Vector3':
+    def cross_product(self, other: 'Vector3') -> 'Vector3':
         """Calculate two vectors cross product"""
         if not isinstance(other, Vector3):
-            raise TypeError("{} must be Vector3, not {}".format(other, other.__class__.__qualname__))
+            raise TypeError(f"{other} must be Vector3, not {other.__class__.__qualname__}")
         return _rl.Vector3CrossProduct(self, other)
     
-    def dot_product(self, other: 'Vector3')-> float:
+    def dot_product(self, other: 'Vector3') -> float:
         """Calculate two vectors dot product"""
         if not isinstance(other, Vector3):
-            raise TypeError("{} must be Vector3, not {}".format(other, other.__class__.__qualname__))
+            raise TypeError(f"{other} must be Vector3, not {other.__class__.__qualname__}")
         return _rl.Vector3DotProduct(self, other)
 
 Vector3Ptr = POINTER(Vector3)
@@ -1214,22 +1217,26 @@ class Vector4(Struct):
     def __len__(self)-> float:
         return _rl.QuaternionLength(self)
 
-    def __getitem__(self, key: Union[str, int, slice])-> Union[float, Sequence]:
-        assert isinstance(key, (str, int, slice)), "KeyTypeError: {} not supported as subscription key.".format(key.__class__.__name__)
+    def __getitem__(self, key: Union[str, int, slice]) -> Union[float, Sequence]:
+        assert isinstance(
+            key, (str, int, slice)
+        ), f"KeyTypeError: {key.__class__.__name__} not supported as subscription key."
         if isinstance(key, (int, slice)):
             return [self.x, self.y, self.z, self.w][key]
         else:
             return {'x': self.x, 'y': self.y,'z': self.z, 'w': self.w}[key]
     
-    def __setitem__(self, key: Union[str, int], value: Number)-> None:
-        assert isinstance(key, (str, int)), "KeyTypeError: {} not supported as subscription key.".format(key.__class__.__name__)
+    def __setitem__(self, key: Union[str, int], value: Number) -> None:
+        assert isinstance(
+            key, (str, int)
+        ), f"KeyTypeError: {key.__class__.__name__} not supported as subscription key."
         if isinstance(key, int):
             a = [self.x, self.y, self.z, self.w]
             a[key] = _to_float(value)
             self.x, self.y, self.z, self.w = a
         else:
             a = {'x': self.x, 'y': self.y, 'z': self.z, 'w': self.w}
-            assert key in a, "KeyError: invalid key '{}'.".format(key)
+            assert key in a, f"KeyError: invalid key '{key}'."
             a[key] = value
             self.x, self.y, self.z, self.w = tuple(a.values())
 
@@ -1240,7 +1247,7 @@ class Vector4(Struct):
         return f"({self.x} , {self.y} , {self.z} , {self.w})"
     
     def __repr__(self) -> str:
-        return "{}({},{},{},{})".format(self.__class__.__qualname__, self.x, self.y, self.z, self.w)
+        return f"{self.__class__.__qualname__}({self.x},{self.y},{self.z},{self.w})"
 
 wrap_function('QuaternionToMatrix', [Vector4], Matrix)
 wrap_function('QuaternionInvert', [Vector4], Vector4)
@@ -1297,11 +1304,11 @@ class Color(Struct):
         )
     
     @normalized.setter
-    def normalized(self, value: Union[Sequence[Number], Vector3, Vector4])-> None:
+    def normalized(self, value: Union[Sequence[Number], Vector3, Vector4]) -> None:
         value = _flatten((int, float), *value, map_to=float)
         length = len(value)
         if length not in (3, 4):
-            raise ValueError("Too many or too few values (expected 3 or 4, not {})".format(length))
+            raise ValueError(f"Too many or too few values (expected 3 or 4, not {length})")
         self.r = int(value[0] * 255.0)
         self.g = int(value[1] * 255.0)
         self.b = int(value[2] * 255.0)
@@ -1314,12 +1321,15 @@ class Color(Struct):
         return Vector4(*rgb_to_hsv(*self.normalized[:3]), self.a / 255.)
 
     @hsv.setter
-    def hsv(self, value: Union[Sequence[Number], Vector3, Vector4])-> None:
+    def hsv(self, value: Union[Sequence[Number], Vector3, Vector4]) -> None:
         value = _flatten((int, float), *value, map_to=float)
         val_len = len(value)
-        if val_len not in (3, 4):
-            raise ValueError("Too many or too few values (expected 3 or 4, not {})".format(len(val_len)))
-        self.normalized = hsv_to_rgb(*value[:3])
+        if val_len in {3, 4}:
+            self.normalized = hsv_to_rgb(*value[:3])
+        else:
+            raise ValueError(
+                f"Too many or too few values (expected 3 or 4, not {len(val_len)})"
+            )
 
     @property
     def hls(self,)-> Vector4:
@@ -1327,12 +1337,15 @@ class Color(Struct):
         return Vector4(*rgb_to_hls(*self.normalized[:3]), self.a / 255.)
 
     @hls.setter
-    def hls(self, value: Union[Sequence[Number], Vector3, Vector4])-> None:
+    def hls(self, value: Union[Sequence[Number], Vector3, Vector4]) -> None:
         value = _flatten((int, float), *value, map_to=float)
         val_len = len(value)
-        if val_len not in (3, 4):
-            raise ValueError("Too many or too few values (expected 3 or 4, not {})".format(val_len))
-        self.normalized = hls_to_rgb(*value[:3])
+        if val_len in {3, 4}:
+            self.normalized = hls_to_rgb(*value[:3])
+        else:
+            raise ValueError(
+                f"Too many or too few values (expected 3 or 4, not {val_len})"
+            )
 
     @property
     def yiq(self) -> 'Vector4':
@@ -1340,12 +1353,15 @@ class Color(Struct):
         return Vector4(*rgb_to_yiq(*self.normalized[:3]), self.a / 255.)
 
     @yiq.setter
-    def yiq(self, value: Union[Sequence[Number], Vector3 ,Vector4])-> None:
+    def yiq(self, value: Union[Sequence[Number], Vector3 ,Vector4]) -> None:
         value = _flatten((int, float), *value, map_to=float)
         val_len = len(value)
-        if val_len not in (3, 4):
-            raise ValueError("Too many or too few values (expected 3 or 4, not {})".format(val_len))
-        self.normalized = yiq_to_rgb(*value[:3])
+        if val_len in {3, 4}:
+            self.normalized = yiq_to_rgb(*value[:3])
+        else:
+            raise ValueError(
+                f"Too many or too few values (expected 3 or 4, not {val_len})"
+            )
 
     def fade(self , alpha: float)-> 'Color':
         """Returns color with alpha applied, alpha goes from 0.0f to 1.0f"""
@@ -1649,27 +1665,29 @@ class Rectangle(Struct):
         self.x , self.y = pos.x, pos.y
 
 
-    def __iadd__(self , other: Union[Sequence[Number] , Vector2])-> 'Rectangle':
+    def __iadd__(self , other: Union[Sequence[Number] , Vector2]) -> 'Rectangle':
         """
         """
         other = _flatten((int , float) , other , map_to=float)
         other_len = len(other)
         if other_len != 2:
-            raise ValueError('Too many or too few initializers ({} instead of 2)'.format(other_len))
-        else:
-            self.x += other[0]
-            self.y += other[1]
-            return self
+            raise ValueError(
+                f'Too many or too few initializers ({other_len} instead of 2)'
+            )
+        self.x += other[0]
+        self.y += other[1]
+        return self
 
-    def __isub__(self , other: Union[Sequence[Number] , Vector2])-> 'Rectangle':
+    def __isub__(self , other: Union[Sequence[Number] , Vector2]) -> 'Rectangle':
         other = _flatten((int , float) , other , map_to=float)
         other_len = len(other)
         if other_len != 2:
-            raise ValueError('Too many or too few initializers ({} instead of 2)'.format(other_len))
-        else:
-            self.x -= other[0]
-            self.y -= other[1]
-            return self
+            raise ValueError(
+                f'Too many or too few initializers ({other_len} instead of 2)'
+            )
+        self.x -= other[0]
+        self.y -= other[1]
+        return self
 
     def __str__(self) -> str:
         return f"({self.x} , {self.y} , {self.width} , {self.height})"

@@ -44,7 +44,7 @@ def main():
             if frames_counter > 120:
                 current_screen = GameScreen.TITLE
                 del frames_counter
-        
+
         elif current_screen == GameScreen.TITLE:
             # TODO: Update TITLE screen variables here!
 
@@ -68,14 +68,11 @@ def main():
             if pyraylib.is_key_pressed(pyraylib.Keyboard.ENTER) \
                 or pyraylib.is_key_pressed(pyraylib.Keyboard.TAB):
                 current_screen = GameScreen.TITLE
-        
-        else:
-            pass
-        
+
         # Draw
         window.begin_drawing()
         window.clear_background(RAYWHITE)
-        
+
         if current_screen == GameScreen.LOGO:
             # TODO: Draw LOGO screen here!
             pyraylib.draw_text("LOGO SCREEN", 20, 20, 40, LIGHTGRAY)

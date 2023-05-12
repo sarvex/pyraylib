@@ -19,8 +19,8 @@ def main():
     build_colors: List[pyraylib.Color] = []
 
     spacing = 0
-    
-    for i in range(MAX_BUILDINGS):
+
+    for _ in range(MAX_BUILDINGS):
         rect = pyraylib.Rectangle()
         rect.width = pyraylib.get_random_value(50, 200)
         rect.height = pyraylib.get_random_value(100, 800)
@@ -29,7 +29,7 @@ def main():
         spacing += rect.width
         buildings.append(rect)
         build_colors.append(pyraylib.get_random_color())
-    
+
     camera = pyraylib.Camera2D(
         offset=(SCREEN_WIDTH/2., SCREEN_HEIGHT/2.),
         target=(player.x + 20., player.y + 20.),
@@ -54,13 +54,13 @@ def main():
             camera.rotation -= 1
         elif pyraylib.is_key_down(pyraylib.Keyboard.S):
             camera.rotation += 1
-        
+
         # Limit camera rotation to 80 degrees (-40 to 40)
         if camera.rotation > 40:
             camera.rotation = 40
         elif camera.rotation < -40:
             camera.rotation = -40
-        
+
         # Camera zoom controls
         camera.zoom += pyraylib.get_mouse_wheel_move() * 0.05
 
@@ -68,12 +68,12 @@ def main():
             camera.zoom = 3.
         elif camera.zoom < 0.1:
             camera.zoom = 0.1
-        
+
         # Camera reset (zoom and rotation)
         if pyraylib.is_key_pressed(pyraylib.Keyboard.R):
             camera.zoom = 1.
             camera.rotation = 0.
-            
+
         # Draw
         window.begin_drawing()
         window.clear_background(RAYWHITE)
